@@ -16,14 +16,14 @@
   .page-head{min-height:15mm;margin:0 0 5mm;padding:0;align-items:flex-start}
   .heading{font-size:21px;line-height:1.2;font-weight:600;letter-spacing:-.2px;color:#20242b}
   .page-subtitle{right:0;top:2px;font-size:10px;letter-spacing:0;color:#626974}
-  .task-list{display:block}
-  .task-card{width:100%;max-width:105mm;min-height:9.7mm;padding:1.2mm 0;margin:0;background:#fff;border:0;border-radius:0;grid-template-columns:7mm minmax(0,1fr)}
+  .task-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:11mm;row-gap:0}
+  .task-card{width:100%;max-width:none;min-height:9.7mm;padding:1.2mm 0;margin:0;background:#fff;border:0;border-radius:0;grid-template-columns:7mm minmax(0,1fr)}
   .task-title{font-size:15px;line-height:18px;font-weight:500;color:#252a31;white-space:normal}
   .task-title.done{color:#747d8c;text-decoration-color:#9ba3af}
   .meta{font-size:11px;line-height:14px;margin-top:.3mm;color:#68707c}
   .check{width:4.2mm;height:4.2mm;border:1.35px solid #7a828d;color:transparent;background:#fff}
   .check.done{background:#111;border-color:#111;color:#fff}
-  .section-title{display:flex;width:100%;max-width:none;margin:2mm 0 1mm;padding:0 0 1.5mm;border-bottom:1px solid #dfe2e6;font-size:12px;font-weight:600;color:#343a43}
+  .section-title{display:flex;grid-column:1/-1;width:100%;max-width:none;margin:2mm 0 1mm;padding:0 0 1.5mm;border-bottom:1px solid #dfe2e6;font-size:12px;font-weight:600;color:#343a43}
   .section-chevron{font-size:11px}
   .main-content:after{content:none}
   body:after{content:'✓  Printed with Jarvis Todo';position:fixed;left:8mm;bottom:7mm;font-size:9px;font-weight:600;letter-spacing:.1px;color:#2564cf}

@@ -2,6 +2,16 @@
 
 所有重要更改记录于此，版本号遵循语义化版本规范。
 
+## 1.0.11 - 2026-09-15
+
+### Improved
+
+- Enlarged and aligned the plus icon beside New list
+- Added a two-line hover hint to New list
+- Replaced the title and Windows application icon with a modern four-pane design
+- Matched the smart-list navigation icons to the reference outline style
+- Added expandable group bodies, empty drop hints, and drag-to-group behavior
+
 ## 1.0.10 - 2026-09-15
 
 ### 修复

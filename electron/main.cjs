@@ -1,5 +1,6 @@
 const { app, BrowserWindow, Menu, dialog, shell, Notification, ipcMain } = require('electron');
 const path = require('node:path');
+const { pathToFileURL } = require('node:url');
 const fs = require('node:fs');
 const http = require('node:http');
 const log = require('electron-log');
@@ -10,6 +11,7 @@ let updateReady = false;
 let printServer;
 let printServerPort;
 let printState = '{}';
+let printPreviewWindow;
 
 log.initialize();
 log.transports.file.level = 'info';
@@ -77,7 +79,36 @@ function ensurePrintServer() {
 async function openPrintPreview() {
   printState = await mainWindow.webContents.executeJavaScript("localStorage.getItem('todo-state') || '{}'");
   const port = await ensurePrintServer();
-  return shell.openExternal(`http://127.0.0.1:${port}/?browserPrint=1`);
+  const sourceWindow = new BrowserWindow({
+    show: false,
+    webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true }
+  });
+  try {
+    await sourceWindow.loadURL(`http://127.0.0.1:${port}/?printRender=1`);
+    await sourceWindow.webContents.executeJavaScript('document.fonts.ready');
+    const pdf = await sourceWindow.webContents.printToPDF({
+      printBackground: true,
+      pageSize: 'A4',
+      preferCSSPageSize: true
+    });
+    const pdfPath = path.join(app.getPath('temp'), 'jarvis-todo-print-preview.pdf');
+    fs.writeFileSync(pdfPath, pdf);
+    if (printPreviewWindow && !printPreviewWindow.isDestroyed()) printPreviewWindow.close();
+    printPreviewWindow = new BrowserWindow({
+      width: 1050,
+      height: 850,
+      minWidth: 720,
+      minHeight: 600,
+      title: '打印预览 - Jarvis Todo',
+      backgroundColor: '#3b3b3b',
+      autoHideMenuBar: true,
+      webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, plugins: true }
+    });
+    printPreviewWindow.on('closed', () => { printPreviewWindow = null; });
+    await printPreviewWindow.loadURL(pathToFileURL(pdfPath).toString());
+  } finally {
+    if (!sourceWindow.isDestroyed()) sourceWindow.destroy();
+  }
 }
 
 function configureUpdater() {

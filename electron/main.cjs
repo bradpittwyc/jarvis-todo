@@ -4,6 +4,7 @@ const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
 
 let mainWindow;
+let printPreviewWindow;
 let updateReady = false;
 
 log.initialize();
@@ -35,6 +36,31 @@ function createWindow() {
     if (/^https?:/.test(url)) shell.openExternal(url);
     return { action: 'deny' };
   });
+}
+
+function openPrintPreview() {
+  if (printPreviewWindow && !printPreviewWindow.isDestroyed()) {
+    printPreviewWindow.focus();
+    return;
+  }
+
+  printPreviewWindow = new BrowserWindow({
+    width: 980,
+    height: 820,
+    minWidth: 720,
+    minHeight: 620,
+    title: '打印预览 - Jarvis Todo',
+    backgroundColor: '#505050',
+    autoHideMenuBar: true,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.cjs'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true
+    }
+  });
+  printPreviewWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'), { query: { printPreview: '1' } });
+  printPreviewWindow.on('closed', () => { printPreviewWindow = null; });
 }
 
 function configureUpdater() {
@@ -84,7 +110,7 @@ function checkForUpdates(manual = false) {
 function buildMenu() {
   const template = [
     { label: '文件', submenu: [
-      { label: '打印列表', accelerator: 'CmdOrCtrl+P', click: () => mainWindow.webContents.print() },
+      { label: '打印列表', accelerator: 'CmdOrCtrl+P', click: openPrintPreview },
       { type: 'separator' },
       { role: 'quit', label: '退出' }
     ]},
@@ -120,5 +146,14 @@ else {
 
 ipcMain.handle('app-version', () => app.getVersion());
 ipcMain.handle('check-for-updates', () => checkForUpdates(true));
+ipcMain.handle('open-print-preview', openPrintPreview);
+ipcMain.handle('print-current-window', event => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win) win.webContents.print({ printBackground: true });
+});
+ipcMain.handle('close-current-window', event => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win && win !== mainWindow) win.close();
+});
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });

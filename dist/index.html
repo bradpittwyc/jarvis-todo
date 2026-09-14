@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#1b1b1b" />
+  <meta name="description" content="一款专注、流畅的个人任务管理器" />
+  <title>Todo</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='m8 16 5 5L25 9' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="titlebar">
+      <button class="brand" data-action="home" aria-label="Todo 首页"><span class="brand-check">✓</span><span>Todo</span></button>
+      <div class="window-dots" aria-hidden="true"><span>—</span><span>□</span><span>×</span></div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar" id="sidebar"></aside>
+      <main class="main" id="main"></main>
+      <aside class="detail-panel" id="detailPanel" aria-label="任务详细信息"></aside>
+      <aside class="suggestions-panel" id="suggestionsPanel" aria-label="建议"></aside>
+    </div>
+    <div class="toast" id="toast" role="status"></div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

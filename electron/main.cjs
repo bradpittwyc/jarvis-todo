@@ -69,7 +69,7 @@ async function openPrintPreview() {
     const pdfPath = path.join(app.getPath('temp'), 'jarvis-todo-print-preview.pdf');
     fs.writeFileSync(pdfPath, pdf);
     if (printPreviewWindow && !printPreviewWindow.isDestroyed()) printPreviewWindow.close();
-    printPreviewWindow = new BrowserWindow({width:1050,height:850,minWidth:720,minHeight:600,title:'打印预览 - Jarvis Todo',backgroundColor:'#eef0f2',autoHideMenuBar:true,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true,plugins:true}});
+    printPreviewWindow = new BrowserWindow({width:1050,height:850,minWidth:720,minHeight:600,title:'Print Preview - Jarvis Todo',backgroundColor:'#eef0f2',autoHideMenuBar:true,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true,plugins:true}});
     printPreviewWindow.on('closed',()=>{printPreviewWindow=null;});
     await printPreviewWindow.loadURL(pathToFileURL(pdfPath).toString());
   } finally { if (!sourceWindow.isDestroyed()) sourceWindow.destroy(); }
@@ -88,14 +88,14 @@ function configureUpdater() {
     updateReady = true;
     sendUpdateState('downloaded', info.version);
     if (Notification.isSupported()) {
-      new Notification({ title: 'Jarvis Todo 更新已就绪', body: `版本 ${info.version} 已下载，重启应用即可安装。` }).show();
+      new Notification({ title: 'Jarvis Todo update ready', body: `Version ${info.version} has downloaded. Restart to install it.` }).show();
     }
     dialog.showMessageBox(mainWindow, {
       type: 'info',
-      title: '更新已就绪',
-      message: `Jarvis Todo ${info.version} 已下载完成。`,
-      detail: '现在重启并安装更新吗？',
-      buttons: ['立即重启', '稍后'],
+      title: 'Update ready',
+      message: `Jarvis Todo ${info.version} has downloaded.`,
+      detail: 'Restart now and install the update?',
+      buttons: ['Restart now', 'Later'],
       defaultId: 0,
       cancelId: 1
     }).then(({ response }) => {
@@ -110,33 +110,33 @@ function sendUpdateState(status, value = null) {
 
 function checkForUpdates(manual = false) {
   if (!app.isPackaged) {
-    if (manual) dialog.showMessageBox(mainWindow, { type: 'info', title: '检查更新', message: '开发模式不会检查更新。', detail: `当前版本：${app.getVersion()}` });
+    if (manual) dialog.showMessageBox(mainWindow, { type: 'info', title: 'Check for updates', message: 'Updates are not checked in development mode.', detail: `Current version: ${app.getVersion()}` });
     return;
   }
   autoUpdater.checkForUpdates().catch(error => {
     log.error(error);
-    if (manual) dialog.showErrorBox('检查更新失败', error.message);
+    if (manual) dialog.showErrorBox('Update check failed', error.message);
   });
 }
 
 function buildMenu() {
   const template = [
-    { label: '文件', submenu: [
-      { label: '打印列表', accelerator: 'CmdOrCtrl+P', click: openPrintPreview },
+    { label: 'File', submenu: [
+      { label: 'Print list', accelerator: 'CmdOrCtrl+P', click: openPrintPreview },
       { type: 'separator' },
-      { role: 'quit', label: '退出' }
+      { role: 'quit', label: 'Exit' }
     ]},
-    { label: '查看', submenu: [
-      { role: 'reload', label: '刷新' },
-      { role: 'togglefullscreen', label: '全屏' },
+    { label: 'View', submenu: [
+      { role: 'reload', label: 'Reload' },
+      { role: 'togglefullscreen', label: 'Full screen' },
       { type: 'separator' },
-      { role: 'zoomIn', label: '放大' },
-      { role: 'zoomOut', label: '缩小' },
-      { role: 'resetZoom', label: '实际大小' }
+      { role: 'zoomIn', label: 'Zoom in' },
+      { role: 'zoomOut', label: 'Zoom out' },
+      { role: 'resetZoom', label: 'Actual size' }
     ]},
-    { label: '帮助', submenu: [
-      { label: '检查更新', click: () => updateReady ? autoUpdater.quitAndInstall(false, true) : checkForUpdates(true) },
-      { label: `关于 Jarvis Todo ${app.getVersion()}`, click: () => dialog.showMessageBox(mainWindow, { title: '关于 Jarvis Todo', message: `Jarvis Todo ${app.getVersion()}`, detail: '简洁、专注的桌面待办事项管理器。' }) }
+    { label: 'Help', submenu: [
+      { label: 'Check for updates', click: () => updateReady ? autoUpdater.quitAndInstall(false, true) : checkForUpdates(true) },
+      { label: `About Jarvis Todo ${app.getVersion()}`, click: () => dialog.showMessageBox(mainWindow, { title: 'About Jarvis Todo', message: `Jarvis Todo ${app.getVersion()}`, detail: 'A simple, focused desktop task manager.' }) }
     ]}
   ];
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));

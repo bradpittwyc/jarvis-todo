@@ -2,6 +2,13 @@
 
 所有重要更改记录于此，版本号遵循语义化版本规范。
 
+## 1.0.13 - 2026-09-15
+
+### Improved
+
+- Suggestions now uses Yesterday, Earlier, and Recently added sections
+- Added progressive More expansion and richer task metadata
+
 ## 1.0.12 - 2026-09-15
 
 ### Added

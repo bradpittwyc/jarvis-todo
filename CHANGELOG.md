@@ -2,6 +2,14 @@
 
 所有重要更改记录于此，版本号遵循语义化版本规范。
 
+## 1.0.12 - 2026-09-15
+
+### Added
+
+- My Day now refreshes once per local calendar day
+- Yesterday's My Day tasks move into the Suggestions panel without being deleted
+- Suggestions opens automatically after the daily refresh
+
 ## 1.0.11 - 2026-09-15
 
 ### Improved

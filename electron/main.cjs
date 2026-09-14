@@ -1,11 +1,15 @@
 const { app, BrowserWindow, Menu, dialog, shell, Notification, ipcMain } = require('electron');
 const path = require('node:path');
+const fs = require('node:fs');
+const http = require('node:http');
 const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
 
 let mainWindow;
-let printPreviewWindow;
 let updateReady = false;
+let printServer;
+let printServerPort;
+let printState = '{}';
 
 log.initialize();
 log.transports.file.level = 'info';
@@ -38,29 +42,42 @@ function createWindow() {
   });
 }
 
-function openPrintPreview() {
-  if (printPreviewWindow && !printPreviewWindow.isDestroyed()) {
-    printPreviewWindow.focus();
-    return;
-  }
-
-  printPreviewWindow = new BrowserWindow({
-    width: 980,
-    height: 820,
-    minWidth: 720,
-    minHeight: 620,
-    title: '打印预览 - Jarvis Todo',
-    backgroundColor: '#505050',
-    autoHideMenuBar: true,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.cjs'),
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: true
+function ensurePrintServer() {
+  if (printServerPort) return Promise.resolve(printServerPort);
+  const distRoot = path.join(__dirname, '..', 'dist');
+  printServer = http.createServer((request, response) => {
+    const requestPath = new URL(request.url, 'http://127.0.0.1').pathname;
+    if (requestPath === '/__print-state') {
+      response.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+      response.end(printState);
+      return;
     }
+    const relativePath = requestPath === '/' ? 'index.html' : decodeURIComponent(requestPath.slice(1));
+    const filePath = path.resolve(distRoot, relativePath);
+    if (!filePath.startsWith(path.resolve(distRoot) + path.sep)) {
+      response.writeHead(403).end();
+      return;
+    }
+    fs.readFile(filePath, (error, data) => {
+      if (error) { response.writeHead(404).end(); return; }
+      const type = path.extname(filePath) === '.css' ? 'text/css' : path.extname(filePath) === '.js' ? 'text/javascript' : 'text/html';
+      response.writeHead(200, { 'Content-Type': `${type}; charset=utf-8` });
+      response.end(data);
+    });
   });
-  printPreviewWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'), { query: { printPreview: '1' } });
-  printPreviewWindow.on('closed', () => { printPreviewWindow = null; });
+  return new Promise((resolve, reject) => {
+    printServer.once('error', reject);
+    printServer.listen(0, '127.0.0.1', () => {
+      printServerPort = printServer.address().port;
+      resolve(printServerPort);
+    });
+  });
+}
+
+async function openPrintPreview() {
+  printState = await mainWindow.webContents.executeJavaScript("localStorage.getItem('todo-state') || '{}'");
+  const port = await ensurePrintServer();
+  return shell.openExternal(`http://127.0.0.1:${port}/?browserPrint=1`);
 }
 
 function configureUpdater() {
@@ -147,13 +164,5 @@ else {
 ipcMain.handle('app-version', () => app.getVersion());
 ipcMain.handle('check-for-updates', () => checkForUpdates(true));
 ipcMain.handle('open-print-preview', openPrintPreview);
-ipcMain.handle('print-current-window', event => {
-  const win = BrowserWindow.fromWebContents(event.sender);
-  if (win) win.webContents.print({ printBackground: true });
-});
-ipcMain.handle('close-current-window', event => {
-  const win = BrowserWindow.fromWebContents(event.sender);
-  if (win && win !== mainWindow) win.close();
-});
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });

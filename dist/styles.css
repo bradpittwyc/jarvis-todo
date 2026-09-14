@@ -8,7 +8,9 @@
 @media(max-width:900px){.workspace{grid-template-columns:240px 1fr}.main-content{padding:28px 24px 35px}.detail-panel,.suggestions-panel{width:min(356px,calc(100vw - 240px))}}
 @media(max-width:680px){.titlebar{display:none}.app-shell{min-height:100vh}.workspace{height:100vh;grid-template-columns:1fr}.sidebar{position:absolute;inset:0 auto 0 0;width:280px;z-index:15;transform:translateX(-100%);transition:.2s;box-shadow:20px 0 50px #000}.sidebar.mobile-open{transform:none}.main-content{padding:20px 15px 25px}.page-head{margin-bottom:18px}.heading{font-size:25px}.head-actions .menu-toggle{display:grid!important}.detail-panel,.suggestions-panel{width:100%}.task-card{min-height:57px}.meta{font-size:12px}}
 @media print{
-  @page{size:A4;margin:15mm 13mm 17mm}
+  @page{size:A4;margin:15mm 13mm 17mm;background:#fff}
+  :root{color-scheme:light!important;background:#fff!important}
+  html,body,.app-shell,.workspace,.main,.main-content{background:#fff!important}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .main-content{font-family:"Segoe UI Variable","Segoe UI","Microsoft YaHei",sans-serif}
   .page-head{min-height:15mm;margin:0 0 5mm;padding:0;align-items:flex-start}

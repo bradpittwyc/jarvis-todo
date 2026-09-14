@@ -1,6 +1,6 @@
 {
   "name": "jarvis-todo",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A focused Windows desktop task manager inspired by Microsoft To Do.",
   "main": "electron/main.cjs",
   "author": "bradpittwyc",

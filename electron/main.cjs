@@ -53,7 +53,7 @@ function ensurePrintServer() {
     const relativePath = requestPath === '/' ? 'index.html' : decodeURIComponent(requestPath.slice(1));
     const filePath = path.resolve(distRoot, relativePath);
     if (!filePath.startsWith(path.resolve(distRoot) + path.sep)) { response.writeHead(403).end(); return; }
-    fs.readFile(filePath, (error, data) => { if (error) { response.writeHead(404).end(); return; } const ext=path.extname(filePath); const type=ext==='.css'?'text/css':ext==='.js'?'text/javascript':'text/html'; if(relativePath==='index.html'&&requestPath.includes('printRender')) data=Buffer.from(data.toString().replace('<script src="app.js">',`<script>localStorage.setItem('todo-state',${JSON.stringify(printState)})</script><script src="app.js">`)); response.writeHead(200, {'Content-Type':`${type}; charset=utf-8`}); response.end(data); });
+    fs.readFile(filePath, (error, data) => { if (error) { response.writeHead(404).end(); return; } const ext=path.extname(filePath); const type=ext==='.css'?'text/css':ext==='.js'?'text/javascript':'text/html'; const isPrintRender=new URL(request.url,'http://127.0.0.1').searchParams.has('printRender'); if(relativePath==='index.html'&&isPrintRender) data=Buffer.from(data.toString().replace('<script src="app.js">',`<script>localStorage.setItem('todo-state',${JSON.stringify(printState)})</script><script src="app.js">`)); response.writeHead(200, {'Content-Type':`${type}; charset=utf-8`}); response.end(data); });
   });
   return new Promise(resolve => printServer.listen(0, '127.0.0.1', () => { printServerPort=printServer.address().port; resolve(printServerPort); }));
 }
@@ -69,7 +69,7 @@ async function openPrintPreview() {
     const pdfPath = path.join(app.getPath('temp'), 'jarvis-todo-print-preview.pdf');
     fs.writeFileSync(pdfPath, pdf);
     if (printPreviewWindow && !printPreviewWindow.isDestroyed()) printPreviewWindow.close();
-    printPreviewWindow = new BrowserWindow({width:1050,height:850,minWidth:720,minHeight:600,title:'打印预览 - Jarvis Todo',backgroundColor:'#3b3b3b',autoHideMenuBar:true,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true,plugins:true}});
+    printPreviewWindow = new BrowserWindow({width:1050,height:850,minWidth:720,minHeight:600,title:'打印预览 - Jarvis Todo',backgroundColor:'#eef0f2',autoHideMenuBar:true,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true,plugins:true}});
     printPreviewWindow.on('closed',()=>{printPreviewWindow=null;});
     await printPreviewWindow.loadURL(pathToFileURL(pdfPath).toString());
   } finally { if (!sourceWindow.isDestroyed()) sourceWindow.destroy(); }
